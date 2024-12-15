@@ -14,14 +14,15 @@ function isValidSignature(requestBody, receivedSignature) {
         .createHmac('sha256', SECRET)
         .update(JSON.stringify(requestBody))
         .digest('hex');
-
-    console.error("Bad webhook signature. Received " + receivedSignature)
-    console.error("Expected " + expectedSignature)
-
-    return crypto.timingSafeEqual(
+    const ok = crypto.timingSafeEqual(
         Buffer.from(expectedSignature, 'utf8'),
         Buffer.from(receivedSignature, 'utf8')
     );
+    if (!ok) {
+        console.error("Bad webhook signature. Received " + receivedSignature)
+        console.error("Expected " + expectedSignature)
+    }
+    return ok
 }
 
 app.post('/', (req, res) => {
